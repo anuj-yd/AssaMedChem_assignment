@@ -11,9 +11,12 @@ const productRoutes= require('./routes/products');
 const orderRoutes  = require('./routes/orders');
 const userRoutes   = require('./routes/users');
 const errorHandler = require('./middleware/errorHandler');
+const seedProductCatalogIfEmpty = require('./utils/catalogSeeder');
 
 // Connect to MongoDB
-connectDB();
+connectDB().then(() => {
+  seedProductCatalogIfEmpty();
+});
 
 const app = express();
 
