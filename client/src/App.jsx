@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
+import { LoaderProvider } from './context/LoaderContext';
 import { ProtectedRoute, PublicRoute } from './components/ProtectedRoute';
 
 // Auth
@@ -21,7 +22,8 @@ import SellerOrders  from './pages/seller/MyOrders';
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <LoaderProvider>
+        <BrowserRouter>
         <Toaster
           position="top-right"
           gutter={8}
@@ -79,6 +81,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
+      </LoaderProvider>
     </AuthProvider>
   );
 }
