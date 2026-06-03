@@ -1088,7 +1088,9 @@ tbody tr:last-child td { border-bottom: none; }
 ═══════════════════════════════════════════════════════════════════ */
 .auth-page {
   min-height: 100vh;
-  background: var(--color-bg);
+  background: linear-gradient(135deg, rgba(247, 244, 235, 0.85) 0%, rgba(240, 236, 225, 0.90) 100%), url('https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8Y2hlbWljYWx8ZW58MHx8MHx8fDA%3D');
+  background-size: cover;
+  background-position: center;
   display: flex;
   align-items: center;
   justify-content: center;
