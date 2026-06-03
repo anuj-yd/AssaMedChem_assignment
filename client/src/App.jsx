@@ -30,14 +30,14 @@ export default function App() {
           toastOptions={{
             duration: 3500,
             style: {
-              background: '#111827',
-              color: '#f0f4ff',
-              border: '1px solid rgba(99,120,200,0.28)',
+              background: '#ffffff',
+              color: '#2b221a',
+              border: '1px solid rgba(150,130,110,0.25)',
               borderRadius: '12px',
               fontSize: '0.875rem',
               fontFamily: "'Inter', sans-serif",
               fontWeight: 500,
-              boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(99,102,241,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.08), 0 0 16px rgba(194,39,45,0.05)',
               padding: '12px 16px',
               maxWidth: 380,
             },

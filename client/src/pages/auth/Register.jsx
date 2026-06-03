@@ -183,7 +183,7 @@ export default function Register() {
 
           {/* Terms notice */}
           <div style={{
-            background: 'rgba(99,102,241,0.06)',
+            background: 'rgba(194,39,45,0.05)',
             border: '1px solid var(--color-border)',
             borderRadius: 'var(--radius-sm)',
             padding: '10px 14px',
