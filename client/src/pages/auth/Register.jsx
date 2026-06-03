@@ -3,7 +3,48 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { register } from '../../api/auth';
 import toast from 'react-hot-toast';
-import { User, Mail, Lock, Building2, Phone, UserPlus, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Building2, Phone, UserPlus, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+
+/* Floating particle background */
+const STATIC_PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  size:  Math.random() * 4 + 1,
+  x:     Math.random() * 100,
+  y:     Math.random() * 100,
+  dur:   Math.random() * 10 + 8,
+  delay: Math.random() * 6,
+  opacity: Math.random() * 0.4 + 0.1,
+}));
+
+function Particles() {
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+      {STATIC_PARTICLES.map(p => (
+        <div key={p.id} style={{
+          position: 'absolute',
+          width:  p.size,
+          height: p.size,
+          left:   `${p.x}%`,
+          top:    `${p.y}%`,
+          borderRadius: '50%',
+          background: p.id % 3 === 0
+            ? 'var(--color-primary)'
+            : p.id % 3 === 1
+              ? 'var(--color-secondary)'
+              : 'var(--color-accent)',
+          opacity: p.opacity,
+          animation: `float-particle ${p.dur}s ease-in-out ${p.delay}s infinite`,
+        }} />
+      ))}
+      <style>{`
+        @keyframes float-particle {
+          0%, 100% { transform: translateY(0) scale(1); opacity: var(--op, 0.2); }
+          50%       { transform: translateY(-30px) scale(1.2); opacity: calc(var(--op, 0.2) * 1.5); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 export default function Register() {
   const { loginUser } = useAuth();
@@ -49,177 +90,202 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-      <div className="auth-card animate-up" style={{ maxWidth: 500 }}>
-        {/* Brand */}
-        <div className="auth-logo">
-          <div className="auth-logo-icon">⚗️</div>
-          <div className="auth-logo-name">AasaMedChem</div>
-          <div className="auth-logo-tagline">Create a Seller Account</div>
+      <Particles />
+
+      {/* Auth Card */}
+      <div className="auth-card animate-up" style={{ position: 'relative', zIndex: 1 }}>
+        
+        {/* Left Side: Brand Panel */}
+        <div className="auth-card-sidebar">
+          <div className="auth-logo" style={{ textAlign: 'left', marginBottom: 20 }}>
+            <div className="auth-logo-icon" style={{ margin: '0 0 var(--spacing-md)' }}>⚗️</div>
+            <h2 className="auth-logo-name">AasaMedChem</h2>
+            <p className="auth-logo-tagline">Inventory & Order Management</p>
+          </div>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.6, marginBottom: 24 }}>
+            Join our network of verified sellers. List products, manage pricing, handle customer orders, and track your performance in real time.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {[
+              'Direct-to-buyer sales channel',
+              'Easy bulk product upload',
+              'Instant notifications & alerts',
+              'Secure payments & tracking',
+            ].map((feat, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ShieldCheck size={14} style={{ color: 'var(--color-success)', flexShrink: 0 }} />
+                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{feat}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <h1 className="auth-title">Get Started</h1>
-        <p className="auth-subtitle">Fill in your details to create a seller account</p>
+        {/* Right Side: Form */}
+        <div className="auth-card-form">
+          <h1 className="auth-title" style={{ textAlign: 'left', marginBottom: 4 }}>Get Started</h1>
+          <p className="auth-subtitle" style={{ textAlign: 'left', marginBottom: 20 }}>Fill in your details to create a seller account</p>
 
-        <form className="auth-form" onSubmit={handleSubmit}>
-          {/* Name + Email row */}
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-name">
-                <User size={12} /> Full Name <span className="form-required">*</span>
-              </label>
-              <div style={{ position: 'relative' }}>
-                <User size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
-                <input
-                  id="reg-name"
-                  className="form-input"
-                  style={{ paddingLeft: 38 }}
-                  placeholder="John Doe"
-                  value={form.name}
-                  onChange={set('name')}
-                  required
-                  autoFocus
-                />
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-email">
-                <Mail size={12} /> Email <span className="form-required">*</span>
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
-                <input
-                  id="reg-email"
-                  className="form-input"
-                  style={{ paddingLeft: 38 }}
-                  type="email"
-                  placeholder="you@company.com"
-                  value={form.email}
-                  onChange={set('email')}
-                  required
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Password */}
-          <div className="form-group">
-            <label className="form-label" htmlFor="reg-password">
-              <Lock size={12} /> Password <span className="form-required">*</span>
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
-              <input
-                id="reg-password"
-                className="form-input"
-                style={{ paddingLeft: 38, paddingRight: 44 }}
-                type={showPwd ? 'text' : 'password'}
-                placeholder="Min. 6 characters"
-                value={form.password}
-                onChange={set('password')}
-                required
-              />
-              <button type="button" onClick={() => setShowPwd(!showPwd)} style={{
-                position:'absolute', right:12, top:'50%', transform:'translateY(-50%)',
-                color:'var(--text-muted)', background:'none', border:'none', cursor:'pointer',
-                display:'flex', alignItems:'center',
-              }}>
-                {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
-              </button>
-            </div>
-            {/* Password strength */}
-            {form.password && (
-              <div style={{ marginTop: 6 }}>
-                <div style={{ display:'flex', gap:4, marginBottom:4 }}>
-                  {[1,2,3,4,5].map(i => (
-                    <div key={i} style={{
-                      flex: 1, height: 3, borderRadius: 99,
-                      background: i <= pwdStrength ? pwdColor : 'var(--color-surface-3)',
-                      transition: 'background 0.3s ease',
-                    }} />
-                  ))}
-                </div>
-                <div style={{ fontSize: '0.68rem', color: pwdColor, fontWeight: 600 }}>
-                  {pwdLabel} password
+          <form className="auth-form" onSubmit={handleSubmit}>
+            {/* Name + Email row */}
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label" htmlFor="reg-name">
+                  <User size={12} /> Full Name <span className="form-required">*</span>
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <User size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
+                  <input
+                    id="reg-name"
+                    className="form-input"
+                    style={{ paddingLeft: 38 }}
+                    placeholder="John Doe"
+                    value={form.name}
+                    onChange={set('name')}
+                    required
+                    autoFocus
+                  />
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Company + Phone row */}
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label" htmlFor="reg-company">
-                <Building2 size={12} /> Company
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Building2 size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
-                <input
-                  id="reg-company"
-                  className="form-input"
-                  style={{ paddingLeft: 38 }}
-                  placeholder="Your Company Ltd."
-                  value={form.company}
-                  onChange={set('company')}
+              <div className="form-group">
+                <label className="form-label" htmlFor="reg-email">
+                  <Mail size={12} /> Email <span className="form-required">*</span>
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Mail size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
+                  <input
+                    id="reg-email"
+                    className="form-input"
+                    style={{ paddingLeft: 38 }}
+                    type="email"
+                    placeholder="you@company.com"
+                    value={form.email}
+                    onChange={set('email')}
+                    required
                 />
+                </div>
               </div>
             </div>
+
+            {/* Password */}
             <div className="form-group">
-              <label className="form-label" htmlFor="reg-phone">
-                <Phone size={12} /> Phone
+              <label className="form-label" htmlFor="reg-password">
+                <Lock size={12} /> Password <span className="form-required">*</span>
               </label>
               <div style={{ position: 'relative' }}>
-                <Phone size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
+                <Lock size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
                 <input
-                  id="reg-phone"
+                  id="reg-password"
                   className="form-input"
-                  style={{ paddingLeft: 38 }}
-                  placeholder="+91-9000000000"
-                  value={form.phone}
-                  onChange={set('phone')}
+                  style={{ paddingLeft: 38, paddingRight: 44 }}
+                  type={showPwd ? 'text' : 'password'}
+                  placeholder="Min. 6 characters"
+                  value={form.password}
+                  onChange={set('password')}
+                  required
                 />
+                <button type="button" onClick={() => setShowPwd(!showPwd)} style={{
+                  position:'absolute', right:12, top:'50%', transform:'translateY(-50%)',
+                  color:'var(--text-muted)', background:'none', border:'none', cursor:'pointer',
+                  display:'flex', alignItems:'center',
+                }}>
+                  {showPwd ? <EyeOff size={14} /> : <Eye size={14} />}
+                </button>
+              </div>
+              {/* Password strength */}
+              {form.password && (
+                <div style={{ marginTop: 6 }}>
+                  <div style={{ display:'flex', gap:4, marginBottom:4 }}>
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} style={{
+                        flex: 1, height: 3, borderRadius: 99,
+                        background: i <= pwdStrength ? pwdColor : 'var(--color-surface-3)',
+                        transition: 'background 0.3s ease',
+                      }} />
+                    ))}
+                  </div>
+                  <div style={{ fontSize: '0.68rem', color: pwdColor, fontWeight: 600 }}>
+                    {pwdLabel} password
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Company + Phone row */}
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label" htmlFor="reg-company">
+                  <Building2 size={12} /> Company
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Building2 size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
+                  <input
+                    id="reg-company"
+                    className="form-input"
+                    style={{ paddingLeft: 38 }}
+                    placeholder="Your Company Ltd."
+                    value={form.company}
+                    onChange={set('company')}
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="reg-phone">
+                  <Phone size={12} /> Phone
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Phone size={14} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', pointerEvents:'none' }} />
+                  <input
+                    id="reg-phone"
+                    className="form-input"
+                    style={{ paddingLeft: 38 }}
+                    placeholder="+91-9000000000"
+                    value={form.phone}
+                    onChange={set('phone')}
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Terms notice */}
-          <div style={{
-            background: 'rgba(194,39,45,0.05)',
-            border: '1px solid var(--color-border)',
-            borderRadius: 'var(--radius-sm)',
-            padding: '10px 14px',
-            fontSize: '0.72rem',
-            color: 'var(--text-muted)',
-            lineHeight: 1.5,
-          }}>
-            🔒 Your account will be created as a <strong style={{ color:'var(--color-primary-h)' }}>Seller</strong>.
-            Admins can manage your access and view your orders.
-          </div>
+            {/* Terms notice */}
+            <div style={{
+              background: 'rgba(194,39,45,0.05)',
+              border: '1px solid var(--color-border)',
+              borderRadius: 'var(--radius-sm)',
+              padding: '10px 14px',
+              fontSize: '0.72rem',
+              color: 'var(--text-muted)',
+              lineHeight: 1.5,
+            }}>
+              🔒 Your account will be created as a <strong style={{ color:'var(--color-primary-h)' }}>Seller</strong>.
+              Admins can manage your access and view your orders.
+            </div>
 
-          <button
-            id="reg-submit"
-            className="btn btn-primary btn-lg w-full"
-            type="submit"
-            disabled={loading}
-            style={{ justifyContent: 'center' }}
-          >
-            {loading ? (
-              <>
-                <div className="spinner spinner-sm" style={{ borderTopColor: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.25)' }} />
-                Creating account…
-              </>
-            ) : (
-              <>
-                <UserPlus size={16} />
-                Create Seller Account
-              </>
-            )}
-          </button>
-        </form>
+            <button
+              id="reg-submit"
+              className="btn btn-primary btn-lg w-full"
+              type="submit"
+              disabled={loading}
+              style={{ justifyContent: 'center' }}
+            >
+              {loading ? (
+                <>
+                  <div className="spinner spinner-sm" style={{ borderTopColor: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.25)' }} />
+                  Creating account…
+                </>
+              ) : (
+                <>
+                  <UserPlus size={16} />
+                  Create Seller Account
+                </>
+              )}
+            </button>
+          </form>
 
-        <p className="auth-link">
-          Already have an account?{' '}
-          <Link to="/login">Sign in instead</Link>
-        </p>
+          <p className="auth-link">
+            Already have an account?{' '}
+            <Link to="/login">Sign in instead</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
