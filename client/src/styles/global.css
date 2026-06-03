@@ -35,10 +35,10 @@
   --color-info-h:      #2563eb;
 
   /* === Text === */
-  --text-primary:   #2b221a;
-  --text-secondary: #5c4e43;
-  --text-muted:     #8a7b70;
-  --text-faint:     #b0a399;
+  --text-primary:   #1f160e;
+  --text-secondary: #42362c;
+  --text-muted:     #695a4f;
+  --text-faint:     #8f8074;
   --text-inverse:   #fbfaf7;
 
   /* === Gradients === */
@@ -479,22 +479,13 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
    Cards
 ═══════════════════════════════════════════════════════════════════ */
 .card {
-  background: var(--color-surface);
+  background: var(--grad-glass), var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
   transition: border-color var(--transition-base), box-shadow var(--transition-base), transform var(--transition-base);
   position: relative;
   overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--grad-glass);
-  pointer-events: none;
-  border-radius: inherit;
 }
 
 .card:hover {
@@ -521,7 +512,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
    Stats Cards — Enhanced
 ═══════════════════════════════════════════════════════════════════ */
 .stats-card {
-  background: var(--color-surface);
+  background: var(--grad-glass), var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--spacing-lg);
@@ -529,14 +520,6 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
   overflow: hidden;
   transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
   cursor: default;
-}
-
-.stats-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--grad-glass);
-  pointer-events: none;
 }
 
 /* Glow orb in top-right */
