@@ -6,7 +6,7 @@ A full-stack web application for managing chemical/medical product inventory wit
 
 ## 🚀 Live Demo
 
-> Deploy URL will be added after Vercel + Render deployment.
+> https://assa-med-chem-assignment-kew1.vercel.app/
 
 **Test Credentials (after seeding):**
 
