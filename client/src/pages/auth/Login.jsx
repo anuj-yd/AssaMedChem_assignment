@@ -6,20 +6,20 @@ import toast from 'react-hot-toast';
 import { Eye, EyeOff, Mail, Lock, Zap, ShieldCheck } from 'lucide-react';
 
 /* Floating particle background */
-function Particles() {
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    size:  Math.random() * 4 + 1,
-    x:     Math.random() * 100,
-    y:     Math.random() * 100,
-    dur:   Math.random() * 10 + 8,
-    delay: Math.random() * 6,
-    opacity: Math.random() * 0.4 + 0.1,
-  }));
+const STATIC_PARTICLES = Array.from({ length: 20 }, (_, i) => ({
+  id: i,
+  size:  Math.random() * 4 + 1,
+  x:     Math.random() * 100,
+  y:     Math.random() * 100,
+  dur:   Math.random() * 10 + 8,
+  delay: Math.random() * 6,
+  opacity: Math.random() * 0.4 + 0.1,
+}));
 
+function Particles() {
   return (
     <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
-      {particles.map(p => (
+      {STATIC_PARTICLES.map(p => (
         <div key={p.id} style={{
           position: 'absolute',
           width:  p.size,

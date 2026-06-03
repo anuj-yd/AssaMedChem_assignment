@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createOrder } from '../../api/orders';
 import { formatINR } from '../../utils/currency';
-import { calcLineTotal, CONVERSION_FACTORS, getCompatibleUnits } from '../../utils/units';
+import { calcLineTotal, CONVERSION_FACTORS } from '../../utils/units';
 import { UnitBadge } from '../../components/Badges';
 import toast from 'react-hot-toast';
-import { Trash2, ShoppingCart, Send, ArrowLeft } from 'lucide-react';
+import { Trash2, ShoppingCart, Send, ArrowLeft, Info } from 'lucide-react';
 
 function loadCart() {
   try { return JSON.parse(sessionStorage.getItem('amc_cart') || '[]'); } catch { return []; }
@@ -14,28 +14,40 @@ function saveCart(c) { sessionStorage.setItem('amc_cart', JSON.stringify(c)); }
 function clearCart() { sessionStorage.removeItem('amc_cart'); }
 
 function CartItem({ item, onUpdate, onRemove }) {
-  const lineTotal = calcLineTotal(item.basePricePaise, item.orderedQty, item.orderedUnit);
+  const lineTotal    = calcLineTotal(item.basePricePaise, item.orderedQty, item.orderedUnit);
   const pricePerUnit = (item.basePricePaise * CONVERSION_FACTORS[item.orderedUnit]) / 100;
+  const qty          = parseFloat(item.orderedQty) || 0;
+  const isValidQty   = qty > 0;
 
   return (
-    <div className="card" style={{ padding:'var(--spacing-md)' }}>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:'var(--spacing-md)', alignItems:'start' }}>
-        <div>
-          <div className="font-semibold">{item.productName}</div>
-          <div className="mono text-xs text-muted">{item.productSku}</div>
-          <div className="text-xs text-muted mt-md">
-            Stored in base unit: <UnitBadge unit={item.baseUnit} />
+    <div className="card" style={{
+      padding:'var(--spacing-md)',
+      border: isValidQty ? undefined : '1px solid rgba(239,68,68,0.3)',
+    }}>
+      {/* Top row: name + remove */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12, marginBottom:12 }}>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div className="font-semibold" style={{ letterSpacing:'-0.01em' }}>{item.productName}</div>
+          <div className="mono text-xs text-muted" style={{ marginTop:2 }}>{item.productSku}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:6 }}>
+            <span className="text-xs text-muted">Base unit:</span>
+            <UnitBadge unit={item.baseUnit} />
           </div>
         </div>
-        <button className="btn btn-ghost btn-icon" onClick={() => onRemove(item.productId)}
-          style={{ color:'var(--color-danger)' }}>
-          <Trash2 size={16} />
+        <button
+          className="btn btn-ghost btn-icon"
+          onClick={() => onRemove(item.productId)}
+          style={{ color:'var(--color-danger-h)', flexShrink:0 }}
+          title="Remove item"
+        >
+          <Trash2 size={15} />
         </button>
       </div>
 
       <div className="divider" />
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, alignItems:'end' }}>
+      {/* Controls */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, alignItems:'end', marginTop:10 }}>
         {/* Quantity */}
         <div className="form-group">
           <label className="form-label">Quantity</label>
@@ -47,10 +59,12 @@ function CartItem({ item, onUpdate, onRemove }) {
             step="any"
             value={item.orderedQty}
             onChange={(e) => onUpdate(item.productId, 'orderedQty', e.target.value)}
+            style={!isValidQty ? { borderColor:'var(--color-danger)', boxShadow:'0 0 0 2px rgba(239,68,68,0.15)' } : {}}
           />
+          {!isValidQty && <div style={{ fontSize:'0.68rem', color:'var(--color-danger-h)', marginTop:3 }}>Enter a valid quantity</div>}
         </div>
 
-        {/* Unit selector */}
+        {/* Unit Selector */}
         <div className="form-group">
           <label className="form-label">Unit</label>
           <select
@@ -65,20 +79,32 @@ function CartItem({ item, onUpdate, onRemove }) {
           </select>
         </div>
 
-        {/* Price display */}
+        {/* Unit Price (display) */}
         <div className="form-group">
           <label className="form-label">Price / {item.orderedUnit}</label>
-          <div className="form-input" style={{ background:'var(--color-bg-3)', cursor:'default', color:'var(--color-primary-h)', fontWeight:700 }}>
+          <div className="form-input" style={{
+            background:'var(--color-bg-3)',
+            cursor:'default',
+            color:'var(--color-primary-h)',
+            fontWeight:800,
+            letterSpacing:'-0.01em',
+          }}>
             {formatINR(pricePerUnit)}
           </div>
         </div>
       </div>
 
       {/* Line total */}
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8,
-        background:'var(--color-bg-3)', borderRadius:'var(--radius-sm)', padding:'8px 12px' }}>
+      <div style={{
+        display:'flex', justifyContent:'space-between', alignItems:'center',
+        marginTop:10,
+        background: isValidQty ? 'var(--color-bg-3)' : 'rgba(239,68,68,0.05)',
+        borderRadius:'var(--radius-sm)',
+        padding:'8px 12px',
+        border:`1px solid ${isValidQty ? 'var(--color-border)' : 'rgba(239,68,68,0.2)'}`,
+      }}>
         <span className="text-xs text-muted">
-          {parseFloat(item.orderedQty) || 0} {item.orderedUnit} × {formatINR(pricePerUnit)} / {item.orderedUnit}
+          {qty.toLocaleString('en-IN')} {item.orderedUnit} × {formatINR(pricePerUnit)} / {item.orderedUnit}
         </span>
         <span className="price-display">{formatINR(lineTotal)}</span>
       </div>
@@ -99,20 +125,22 @@ export default function SellerCart() {
   };
 
   const remove = (productId) => {
+    const item = cart.find(c => c.productId === productId);
     const next = cart.filter((c) => c.productId !== productId);
     setCart(next);
     saveCart(next);
+    toast(`${item?.productName || 'Item'} removed`, { icon: '🗑️' });
   };
 
-  const totalINR = cart.reduce((sum, item) => {
-    return sum + calcLineTotal(item.basePricePaise, item.orderedQty, item.orderedUnit);
-  }, 0);
+  const totalINR = cart.reduce((sum, item) =>
+    sum + calcLineTotal(item.basePricePaise, item.orderedQty, item.orderedUnit), 0
+  );
 
   const placeOrder = async () => {
     if (cart.length === 0) return toast.error('Cart is empty');
     for (const item of cart) {
       if (!parseFloat(item.orderedQty) || parseFloat(item.orderedQty) <= 0) {
-        return toast.error(`Please enter a valid quantity for ${item.productName}`);
+        return toast.error(`Enter a valid quantity for ${item.productName}`);
       }
     }
 
@@ -136,6 +164,7 @@ export default function SellerCart() {
     }
   };
 
+  /* — Empty state — */
   if (cart.length === 0) {
     return (
       <div className="page-body animate-fade">
@@ -147,7 +176,7 @@ export default function SellerCart() {
           <div className="empty-state-title">Your cart is empty</div>
           <p className="text-sm text-muted">Browse the catalog and add products to get started</p>
           <button className="btn btn-primary mt-lg" onClick={() => navigate('/seller/catalog')}>
-            <ArrowLeft size={16} /> Go to Catalog
+            <ArrowLeft size={15} /> Go to Catalog
           </button>
         </div>
       </div>
@@ -156,10 +185,13 @@ export default function SellerCart() {
 
   return (
     <div className="page-body animate-fade">
+      {/* Header */}
       <div className="page-header">
         <div>
           <h1 className="page-title">My Cart</h1>
-          <p className="page-description">{cart.length} item{cart.length !== 1 ? 's' : ''} — review before placing quotation</p>
+          <p className="page-description">
+            {cart.length} item{cart.length !== 1 ? 's' : ''} — review quantities before placing quotation
+          </p>
         </div>
         <button className="btn btn-secondary btn-sm" onClick={() => navigate('/seller/catalog')}>
           <ArrowLeft size={14} /> Back to Catalog
@@ -167,7 +199,7 @@ export default function SellerCart() {
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr 340px', gap:'var(--spacing-lg)', alignItems:'start' }}>
-        {/* Items */}
+        {/* Items Column */}
         <div style={{ display:'flex', flexDirection:'column', gap:'var(--spacing-md)' }}>
           {cart.map((item) => (
             <CartItem key={item.productId} item={item} onUpdate={update} onRemove={remove} />
@@ -176,34 +208,46 @@ export default function SellerCart() {
           {/* Notes */}
           <div className="card" style={{ padding:'var(--spacing-md)' }}>
             <div className="form-group">
-              <label className="form-label">Notes (optional)</label>
+              <label className="form-label">
+                <Info size={11} /> Order Notes (optional)
+              </label>
               <textarea
                 id="order-notes"
                 className="form-textarea"
-                placeholder="Special requirements, delivery notes, etc."
+                placeholder="Special requirements, delivery preferences, urgency, etc."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
+                rows={3}
               />
             </div>
           </div>
         </div>
 
         {/* Order Summary */}
-        <div style={{ position:'sticky', top: 80 }}>
-          <div className="card">
-            <div className="font-semibold mb-md">Order Summary</div>
-            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+        <div style={{ position:'sticky', top:80 }}>
+          <div className="card" style={{ background:'var(--color-surface)' }}>
+            <div className="font-semibold mb-md" style={{ fontSize:'0.95rem', letterSpacing:'-0.01em' }}>
+              Order Summary
+            </div>
+
+            {/* Line items */}
+            <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:12 }}>
               {cart.map((item) => {
                 const lt = calcLineTotal(item.basePricePaise, item.orderedQty, item.orderedUnit);
+                const qty = parseFloat(item.orderedQty) || 0;
                 return (
-                  <div key={item.productId} style={{ display:'flex', justifyContent:'space-between', fontSize:'0.8rem' }}>
-                    <span className="text-muted truncate" style={{ maxWidth:180 }}>
+                  <div key={item.productId} style={{
+                    display:'flex', justifyContent:'space-between',
+                    alignItems:'flex-start', gap:8,
+                    fontSize:'0.8rem',
+                  }}>
+                    <span className="text-muted truncate" style={{ flex:1, maxWidth:190 }}>
                       {item.productName}
-                      <span className="text-xs" style={{ marginLeft:4 }}>
-                        ({parseFloat(item.orderedQty) || 0} {item.orderedUnit})
+                      <span className="text-xs" style={{ marginLeft:4, color:'var(--text-faint)' }}>
+                        ({qty.toLocaleString('en-IN')} {item.orderedUnit})
                       </span>
                     </span>
-                    <span>{formatINR(lt)}</span>
+                    <span style={{ fontWeight:600, flexShrink:0 }}>{formatINR(lt)}</span>
                   </div>
                 );
               })}
@@ -211,27 +255,42 @@ export default function SellerCart() {
 
             <div className="divider" />
 
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <span className="text-muted text-sm">Total Amount</span>
+            {/* Total */}
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:4 }}>
+              <span className="text-muted text-sm">Subtotal</span>
               <span className="total-amount">{formatINR(totalINR)}</span>
             </div>
-
-            <div style={{ marginTop:4, fontSize:'0.72rem', color:'var(--text-muted)', textAlign:'right' }}>
-              Prices inclusive of all applicable charges
+            <div style={{ fontSize:'0.68rem', color:'var(--text-faint)', textAlign:'right', marginBottom:16 }}>
+              All prices inclusive of applicable charges
             </div>
 
+            {/* Place Order Button */}
             <button
               id="place-order-btn"
-              className="btn btn-primary w-full mt-lg"
-              style={{ justifyContent:'center' }}
+              className="btn btn-primary w-full"
+              style={{ justifyContent:'center', fontSize:'1rem', padding:'13px' }}
               onClick={placeOrder}
               disabled={placing}
             >
-              {placing ? 'Placing Quotation…' : <><Send size={16}/> Place Quotation</>}
+              {placing ? (
+                <>
+                  <div className="spinner spinner-sm" style={{ borderTopColor:'rgba(255,255,255,0.9)', borderColor:'rgba(255,255,255,0.2)' }} />
+                  Placing Quotation…
+                </>
+              ) : (
+                <>
+                  <Send size={16} /> Place Quotation
+                </>
+              )}
             </button>
 
-            <div style={{ marginTop:8, fontSize:'0.72rem', color:'var(--text-muted)', textAlign:'center' }}>
-              This will be submitted as a quotation for admin review.
+            {/* Note */}
+            <div style={{
+              marginTop:10, fontSize:'0.68rem', color:'var(--text-muted)',
+              textAlign:'center', lineHeight:1.5,
+            }}>
+              🔒 This will be submitted as a <strong>quotation</strong> for admin review.
+              You can cancel it before it's confirmed.
             </div>
           </div>
         </div>

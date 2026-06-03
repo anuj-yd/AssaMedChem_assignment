@@ -3,7 +3,7 @@
  * Run: node scripts/seed.js
  */
 
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const mongoose = require('mongoose');
 const User    = require('../models/User');
 const Product = require('../models/Product');

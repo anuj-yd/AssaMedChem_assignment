@@ -1,4 +1,4 @@
-// NOTE: dotenv is loaded by the caller (dev-server.js or start script) before requiring this module
+require('dotenv').config();
 require('express-async-errors');
 
 const express  = require('express');
@@ -21,7 +21,10 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
     'http://localhost:3000',
+    process.env.FRONTEND_URL,
     process.env.CLIENT_URL,
   ].filter(Boolean),
   credentials: true,

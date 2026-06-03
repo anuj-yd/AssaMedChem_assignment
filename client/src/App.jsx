@@ -24,16 +24,29 @@ export default function App() {
       <BrowserRouter>
         <Toaster
           position="top-right"
+          gutter={8}
           toastOptions={{
+            duration: 3500,
             style: {
-              background: '#1a2540',
+              background: '#111827',
               color: '#f0f4ff',
-              border: '1px solid rgba(99,120,180,0.32)',
-              borderRadius: '10px',
+              border: '1px solid rgba(99,120,200,0.28)',
+              borderRadius: '12px',
               fontSize: '0.875rem',
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 500,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 16px rgba(99,102,241,0.1)',
+              padding: '12px 16px',
+              maxWidth: 380,
             },
-            success: { iconTheme: { primary: '#10b981', secondary: '#1a2540' } },
-            error:   { iconTheme: { primary: '#ef4444', secondary: '#1a2540' } },
+            success: {
+              iconTheme: { primary: '#10b981', secondary: '#111827' },
+              style: { borderColor: 'rgba(16,185,129,0.25)' },
+            },
+            error: {
+              iconTheme: { primary: '#ef4444', secondary: '#111827' },
+              style: { borderColor: 'rgba(239,68,68,0.25)' },
+            },
           }}
         />
 

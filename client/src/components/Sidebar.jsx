@@ -1,4 +1,4 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
   LayoutDashboard, Package, ShoppingCart, ClipboardList,
@@ -21,7 +21,6 @@ const sellerLinks = [
 export default function Sidebar() {
   const { user, logout, isAdmin } = useAuth();
   const navigate  = useNavigate();
-  const location  = useLocation();
   const links     = isAdmin ? adminLinks : sellerLinks;
 
   const handleLogout = () => {
@@ -33,8 +32,7 @@ export default function Sidebar() {
     ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
     : '??';
 
-  // Get current page label for topbar
-  const currentLink = links.find(l => location.pathname.startsWith(l.to));
+
 
   return (
     <aside className="sidebar">

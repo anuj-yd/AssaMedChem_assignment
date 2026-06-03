@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from './Sidebar';
-import { useEffect, useState } from 'react';
+
 
 /* ── Page meta map ── */
 const PAGE_META = {
@@ -44,7 +44,7 @@ function Spinner() {
 
 function Topbar() {
   const location = useLocation();
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   const meta = PAGE_META[location.pathname] || { title: 'AasaMedChem', sub: '' };
 
   const now = new Date();

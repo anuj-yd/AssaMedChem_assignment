@@ -52,7 +52,11 @@ export default function AdminProducts() {
     finally { setLoading(false); }
   }, [search, catFilter, page]);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      fetchProducts();
+    });
+  }, [fetchProducts]);
   useEffect(() => { getCategories().then(({ data }) => setCategories(data.categories)); }, []);
 
   const openCreate = () => { setForm(EMPTY_FORM); setModal({ open: true, mode: 'create', product: null }); };
