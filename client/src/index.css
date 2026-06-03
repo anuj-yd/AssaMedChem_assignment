@@ -1,0 +1,8 @@
+/* All global styles are in src/styles/global.css */
+/* This file intentionally left minimal to avoid conflicts */
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
