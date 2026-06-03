@@ -6,7 +6,7 @@
       "destination": "https://assamedchem-assignment.onrender.com/api/:path*"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
