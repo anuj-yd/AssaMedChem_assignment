@@ -55,9 +55,19 @@ app.use(errorHandler);
 
 // ─── Start ─────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+
+// Graceful shutdown — lets nodemon restart cleanly without EADDRINUSE
+const shutdown = () => {
+  server.close(() => {
+    console.log('🛑 Server closed gracefully');
+    process.exit(0);
+  });
+};
+process.on('SIGTERM', shutdown);
+process.on('SIGINT',  shutdown);
 
 module.exports = app;
