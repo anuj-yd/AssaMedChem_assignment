@@ -9,14 +9,14 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://assamedchem-assignment.onrender.com/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://assamedchem-assignment.onrender.com/api/:path*"
     },
     {
-      "src": "/((?!api/).*)",
-      "dest": "/client/index.html"
+      "source": "/((?!api/).*)",
+      "destination": "/client/index.html"
     }
   ]
 }
