@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getProducts, getCategories } from '../../api/products';
+import { getProducts, getCategories, inquireProduct } from '../../api/products';
 import { formatINR } from '../../utils/currency';
 import { getCompatibleUnits, CONVERSION_FACTORS } from '../../utils/units';
 import { UnitBadge } from '../../components/Badges';
@@ -123,6 +123,21 @@ export default function SellerCatalog() {
   const [page,       setPage]       = useState(1);
   const [total,      setTotal]      = useState(0);
   const navigate = useNavigate();
+
+  const [inquireLoading, setInquireLoading] = useState(false);
+
+  const handleInquiry = async () => {
+    if (!search.trim()) return;
+    setInquireLoading(true);
+    try {
+      const { data } = await inquireProduct(search.trim());
+      toast.success(data.message || 'Inquiry sent to Admin!');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to send inquiry');
+    } finally {
+      setInquireLoading(false);
+    }
+  };
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -258,17 +273,54 @@ export default function SellerCatalog() {
         <div className="empty-state">
           <div className="empty-state-icon"><FlaskConical size={28} /></div>
           <div className="empty-state-title">No products found</div>
-          <p className="text-sm text-muted">
+          <p className="text-sm text-muted" style={{ marginBottom: search ? 16 : 24 }}>
             {search || catFilter
-              ? 'Try adjusting your search or clearing filters'
-              : 'Products will appear here once added by the admin'
+              ? `We couldn't find any products matching your criteria.`
+              : 'Products will appear here once added by the admin.'
             }
           </p>
-          {(search || catFilter) && (
-            <button className="btn btn-secondary mt-lg" onClick={() => { setSearch(''); setCatFilter(''); }}>
-              Clear filters
-            </button>
+
+          {search && (
+            <div className="card" style={{
+              maxWidth: 480,
+              margin: '0 auto var(--spacing-lg)',
+              padding: '20px var(--spacing-lg)',
+              background: 'rgba(194,39,45,0.02)',
+              border: '1px dashed var(--color-border-2)',
+              borderRadius: 'var(--radius-md)',
+              textAlign: 'center',
+            }}>
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: 6 }}>
+                Inquire Admin about "{search}"?
+              </h3>
+              <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.5, marginBottom: 16 }}>
+                Send a direct email request to the admin to inquire when this chemical will become available.
+              </p>
+              <button
+                className="btn btn-primary btn-sm w-full"
+                onClick={handleInquiry}
+                disabled={inquireLoading}
+                style={{ justifyContent: 'center' }}
+              >
+                {inquireLoading ? (
+                  <>
+                    <span className="spinner spinner-sm" style={{ borderTopColor: 'rgba(255,255,255,0.9)', borderColor: 'rgba(255,255,255,0.25)', marginRight: 6 }} />
+                    Sending Inquiry…
+                  </>
+                ) : (
+                  'Send Availability Inquiry'
+                )}
+              </button>
+            </div>
           )}
+
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+            {(search || catFilter) && (
+              <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(''); setCatFilter(''); }}>
+                Clear Filters
+              </button>
+            )}
+          </div>
         </div>
       ) : (
         <div className="product-grid stagger">

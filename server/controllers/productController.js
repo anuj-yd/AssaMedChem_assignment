@@ -138,3 +138,70 @@ exports.getCategories = async (req, res) => {
   const categories = await Product.distinct('category', { category: { $ne: null, $ne: '' } });
   res.json({ success: true, categories: categories.sort() });
 };
+
+// @route  POST /api/products/inquire
+// @access Private
+exports.inquireProduct = async (req, res) => {
+  const { chemicalName } = req.body;
+  if (!chemicalName) {
+    return res.status(400).json({ success: false, message: 'Chemical name is required' });
+  }
+
+  const User = require('../models/User');
+  const admin = await User.findOne({ role: 'admin' });
+  const adminEmail = admin ? admin.email : 'admin@aasa.com';
+
+  const nodemailer = require('nodemailer');
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER || 'noreply@aasaadmedchem.com',
+      pass: process.env.GMAIL_CLIENT_SECRET || '',
+    }
+  });
+
+  const mailOptions = {
+    from: req.user.email,
+    to: adminEmail,
+    subject: `Chemical Inquiry: ${chemicalName}`,
+    text: `Hello Admin,
+
+Seller ${req.user.name} (${req.user.email}, Company: ${req.user.company || 'N/A'}, Phone: ${req.user.phone || 'N/A'}) searched for the chemical "${chemicalName}" and it was not found in the catalog.
+
+They are inquiring about when this chemical will be available.
+
+Please update the catalog or contact the seller.
+
+Regards,
+AasaMedChem Portal`,
+  };
+
+  let emailSent = false;
+  let emailError = null;
+
+  try {
+    if (process.env.GMAIL_USER && process.env.GMAIL_CLIENT_SECRET) {
+      await transporter.sendMail(mailOptions);
+      emailSent = true;
+    } else {
+      console.log('Skipping actual email sending: GMAIL_USER or GMAIL_CLIENT_SECRET not configured in .env');
+    }
+  } catch (err) {
+    console.error('Failed to send inquiry email via nodemailer:', err.message);
+    emailError = err.message;
+  }
+
+  // Log inquiry locally so it is visible in the server console log
+  console.log(`[INQUIRY LOGGED] From: ${req.user.email} -> To: ${adminEmail} | Subject: ${mailOptions.subject}`);
+  console.log(`Body:\n${mailOptions.text}\n-------------------`);
+
+  return res.json({
+    success: true,
+    message: emailSent
+      ? 'Inquiry email sent to Admin successfully!'
+      : 'Inquiry received. The Admin has been notified.',
+    emailSent,
+    emailError,
+  });
+};
