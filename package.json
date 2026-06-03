@@ -1,0 +1,13 @@
+{
+  "name": "assamedchem-root",
+  "version": "1.0.0",
+  "description": "Root package for AasaMedChem monorepo",
+  "scripts": {
+    "postinstall": "npm install --prefix server",
+    "start": "npm run start --prefix server",
+    "build": "npm run build --prefix client"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
